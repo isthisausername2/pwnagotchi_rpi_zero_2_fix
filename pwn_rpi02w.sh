@@ -33,6 +33,9 @@ apt-mark hold libraspberrypi0 libraspberrypi-bin libraspberrypi-dev
 
 apt full-upgrade -y
 
+apt-mark unhold firmware-brcm80211
+apt install -y firmware-brcm80211
+ 
 pip3 install --upgrade numpy
 
 echo "Reboot required to fully apply changes"
