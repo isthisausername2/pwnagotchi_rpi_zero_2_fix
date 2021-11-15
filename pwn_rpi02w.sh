@@ -1,8 +1,22 @@
 #!/bin/bash
 
+model=$(grep -i "zero 2" /proc/cpuinfo )
+if [ -n "${model}" ]
+then
+    echo "This script should be run on a non- Zero model 2 system"
+    echo "bailing out..."
+    exit 1
+fi
+
 echo "This should fix pwnagotchi on you RPI Zero 2 w."
 sleep 1
-echo "This script is designed to be run as root/ with sudo."
+
+if [ ! \( \( "${USER}" = "root" \) -o \( -n "${EUID}" -a ${EUID} = 0 \) \) ]
+then
+	echo "This script is designed to be run as root, or run with sudo."
+        exit 1
+fi
+
 echo "If you are not running as root you have 5 seconds to stop this and run as root. If you are running as root just wait 5 seconds."
 sleep 5
 apt update && apt full-upgrade -y
