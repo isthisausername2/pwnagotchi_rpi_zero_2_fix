@@ -1,0 +1,1 @@
+# pwnagotchi_rpi_zero_2_fix
