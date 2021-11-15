@@ -33,8 +33,13 @@ apt-mark hold libraspberrypi0 libraspberrypi-bin libraspberrypi-dev
 
 apt full-upgrade -y
 
-apt-mark unhold firmware-brcm80211
-apt install -y firmware-brcm80211
+# piZero-v2 doesn't support monitor mode https://github.com/seemoo-lab/nexmon/issues/500
+
+# apt-mark unhold firmware-brcm80211
+# apt install -y firmware-brcm80211
+# 
+# #overwrite the important bits
+# apt reinstall -y kalipi-re4son-firmware
  
 pip3 install --upgrade numpy
 
