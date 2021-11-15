@@ -19,15 +19,28 @@ fi
 
 echo "If you are not running as root you have 5 seconds to stop this and run as root. If you are running as root just wait 5 seconds."
 sleep 5
-apt update && apt full-upgrade -y
+
+# stop running services
+systemctl stop pwnagotchi bettercap pwngrid-peer.service
+
+# work around dependency issues during the upgrade process
+apt-mark hold kalipi-bootloader kalipi-kernel
+apt --allow-releaseinfo-change update && apt full-upgrade -y
+apt-mark unhold kalipi-bootloader kalipi-kernel
+
+apt install -y libraspberrypi0=5.4.83-20210516 libraspberrypi-bin=5.4.83-20210516 libraspberrypi-dev=5.4.83-20210516
+apt-mark hold libraspberrypi0 libraspberrypi-bin libraspberrypi-dev
+
+apt full-upgrade -y
+
 pip3 install --upgrade numpy
-apt install libavcodec58 libavformat58
+
 echo "Reboot required to fully apply changes"
 
 # Comands and reserch on fixing this done by github user skontrolle. I just put the comands in as script.
 # GitHub link to orignal issue https://github.com/evilsocket/pwnagotchi/issues/1046
 # Orignal messange from skontrolle
-
+# additional changes by ak_hepcat
 
 
 # I just retraced all of my steps with a clean 1.5.5 image to make sure I didn't have any issues with my backup config.
