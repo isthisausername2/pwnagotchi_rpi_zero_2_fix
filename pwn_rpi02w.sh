@@ -1,19 +1,54 @@
 #!/bin/bash
 
+model=$(grep -i "zero 2" /proc/cpuinfo )
+if [ -n "${model}" ]
+then
+    echo "This script should be run on a non- Zero model 2 system"
+    echo "bailing out..."
+    exit 1
+fi
+
 echo "This should fix pwnagotchi on you RPI Zero 2 w."
 sleep 1
-echo "This script is designed to be run as root/ with sudo."
+
+if [ ! \( \( "${USER}" = "root" \) -o \( -n "${EUID}" -a ${EUID} = 0 \) \) ]
+then
+	echo "This script is designed to be run as root, or run with sudo."
+        exit 1
+fi
+
 echo "If you are not running as root you have 5 seconds to stop this and run as root. If you are running as root just wait 5 seconds."
 sleep 5
-apt update && apt full-upgrade -y
+
+# stop running services
+systemctl stop pwnagotchi bettercap pwngrid-peer.service
+
+# work around dependency issues during the upgrade process
+apt-mark hold kalipi-bootloader kalipi-kernel
+apt --allow-releaseinfo-change update && apt full-upgrade -y
+apt-mark unhold kalipi-bootloader kalipi-kernel
+
+apt install -y libraspberrypi0=5.4.83-20210516 libraspberrypi-bin=5.4.83-20210516 libraspberrypi-dev=5.4.83-20210516
+apt-mark hold libraspberrypi0 libraspberrypi-bin libraspberrypi-dev
+
+apt full-upgrade -y
+
+# piZero-v2 doesn't support monitor mode https://github.com/seemoo-lab/nexmon/issues/500
+
+# apt-mark unhold firmware-brcm80211
+# apt install -y firmware-brcm80211
+# 
+# #overwrite the important bits
+# apt reinstall -y kalipi-re4son-firmware
+ 
 pip3 install --upgrade numpy
-apt install libavcodec58 libavformat58
+
 echo "Reboot required to fully apply changes"
 
 # Comands and reserch on fixing this done by github user skontrolle. I just put the comands in as script.
 # GitHub link to orignal issue https://github.com/evilsocket/pwnagotchi/issues/1046
 # Orignal messange from skontrolle
-
+# additional changes by ak_hepcat
 
 
 # I just retraced all of my steps with a clean 1.5.5 image to make sure I didn't have any issues with my backup config.
