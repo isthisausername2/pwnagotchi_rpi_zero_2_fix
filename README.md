@@ -11,3 +11,5 @@ Set the file as executable
 
 Run the script
 `sudo ./pwn_rpi02w.sh` or `./pwn_rpi02w.sh` if already root
+
+### Creddit to akhepcat for making this script much bettter and adding many things to make it eaiser to use.
