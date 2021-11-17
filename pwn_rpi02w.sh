@@ -39,13 +39,15 @@ apt full-upgrade -y
 
 pip3 install --upgrade numpy
 
-# This is temporary, and gets us a working wifi driver, though without promiscuous monitor mode
-# We just want the 43436 driver, so...
-mkdir /lib/firmware/brcm/old
-cp /lib/firmware/brcm/* /lib/firmware/brcm/old
-apt install -y firmware-brcm80211
-cp /lib/firmware/brcm/old/* /lib/firmware/brcm/
-
+# This is temporary, and gets us a working wifi driver, though without promiscuous monitor mode initially
+# We just want the 43436 driver; unless it already exists, and then future updates should handle it
+if [ ! -e /lib/firmware/brcm/brcmfmac43436-sdio.bin ]
+then
+	mkdir /lib/firmware/brcm/old
+	cp /lib/firmware/brcm/* /lib/firmware/brcm/old
+	apt install -y firmware-brcm80211
+	cp /lib/firmware/brcm/old/* /lib/firmware/brcm/
+fi
 
 echo "Reboot required to fully apply changes"
 
