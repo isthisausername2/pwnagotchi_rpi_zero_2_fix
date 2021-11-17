@@ -1,13 +1,5 @@
 #!/bin/bash
 
-model=$(grep -i "zero 2" /proc/cpuinfo )
-if [ -n "${model}" ]
-then
-    echo "This script should be run on a non- Zero model 2 system"
-    echo "bailing out..."
-    exit 1
-fi
-
 echo "This should fix pwnagotchi on you RPI Zero 2 w."
 sleep 1
 
@@ -20,28 +12,42 @@ fi
 echo "If you are not running as root you have 5 seconds to stop this and run as root. If you are running as root just wait 5 seconds."
 sleep 5
 
+if [ ! -e /etc/apt/preferences.d/kali.pref ];
+then
+	cat <<EOF >/etc/apt/preferences.d/kali.pref
+Package: *
+Pin: release n=kali-pi
+Pin-Priority: 999
+EOF
+
+	# this sets the correct priority for upgrades so we don't have to be so hacky!
+fi
+
 # stop running services
 systemctl stop pwnagotchi bettercap pwngrid-peer.service
 
-# work around dependency issues during the upgrade process
-apt-mark hold kalipi-bootloader kalipi-kernel
-apt --allow-releaseinfo-change update && apt full-upgrade -y
-apt-mark unhold kalipi-bootloader kalipi-kernel
+# work around release-info changes during the upgrade process
+apt --allow-releaseinfo-change update
 
-apt install -y libraspberrypi0=5.4.83-20210516 libraspberrypi-bin=5.4.83-20210516 libraspberrypi-dev=5.4.83-20210516
-apt-mark hold libraspberrypi0 libraspberrypi-bin libraspberrypi-dev
+# Unhold, and upgrade these packages only from the kali-pi repo
+# apt install -y -t kali-pi libraspberrypi0 libraspberrypi-bin libraspberrypi-dev kalipi-bootloader kalipi-kernel
 
+# Packages get installed here, prefering kali-pi for all packages they provide; debian for all others
 apt full-upgrade -y
 
 # piZero-v2 doesn't support monitor mode https://github.com/seemoo-lab/nexmon/issues/500
 
-# apt-mark unhold firmware-brcm80211
-# apt install -y firmware-brcm80211
-# 
-# #overwrite the important bits
-# apt reinstall -y kalipi-re4son-firmware
- 
 pip3 install --upgrade numpy
+
+# This is temporary, and gets us a working wifi driver, though without promiscuous monitor mode initially
+# We just want the 43436 driver; unless it already exists, and then future updates should handle it
+if [ ! -e /lib/firmware/brcm/brcmfmac43436-sdio.bin ]
+then
+	mkdir /lib/firmware/brcm/old
+	cp /lib/firmware/brcm/* /lib/firmware/brcm/old
+	apt install -y firmware-brcm80211
+	cp /lib/firmware/brcm/old/* /lib/firmware/brcm/
+fi
 
 echo "Reboot required to fully apply changes"
 
