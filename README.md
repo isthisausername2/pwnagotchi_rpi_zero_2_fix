@@ -1,7 +1,7 @@
 # pwnagotchi Raspberry Pi Zero 2 W Fix
 
 Download the script
-`https://github.com/isthisausername2/pwnagotchi_rpi_zero_2_fix.git`
+`git clone https://github.com/isthisausername2/pwnagotchi_rpi_zero_2_fix.git`
 
 Enter the directory
 `cd pwnagotchi_rpi_zero_2_fix`
